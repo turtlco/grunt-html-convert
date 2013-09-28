@@ -4,10 +4,6 @@
 	"version": "0.0.1",
 	"homepage": "https://github.com/soundstep/grunt-html-convert",
 	"author": {
-		"name": "Karl Goldstein",
-		"email": "karl.goldstein@gmail.com"
-	},
-	"contributors": {
 		"name": "Romuald Quantin",
 		"email": "romu@soundstep.com"
 	},
