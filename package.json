@@ -1,7 +1,7 @@
 {
 	"name": "grunt-html-convert",
 	"description": "Compiles html to JavaScript",
-	"version": "0.1.7",
+	"version": "0.0.1",
 	"homepage": "https://github.com/soundstep/grunt-html-convert",
 	"author": {
 		"name": "Karl Goldstein",
