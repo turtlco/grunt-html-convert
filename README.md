@@ -2,7 +2,7 @@
 
 > Converts html templates to JavaScript
 
-This is a fork of the [html2js repo](https://github.com/karlgoldstein/grunt-html2js), the original grunt task converts html to javascript. This fork convert html to vanilla javascript.
+This is a fork of the [html2js repo](https://github.com/karlgoldstein/grunt-html2js), the original grunt task converts html to angular modules. This fork convert html to vanilla javascript.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
