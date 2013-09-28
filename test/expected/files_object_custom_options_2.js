@@ -1,6 +1,3 @@
-angular.module('my-custom-template-module', ['fixtures/two.tpl.html']);
+var myCustomTemplateModule = {};
 
-angular.module("fixtures/two.tpl.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("fixtures/two.tpl.html",
-    "Testing");
-}]);
+myCustomTemplateModule["fixtures/two.tpl.html"] = "Testing";

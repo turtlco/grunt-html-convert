@@ -1,4 +1,12 @@
 /*
+ * grunt-html-convert
+ * https://github.com/soundstep/grunt-html-convert
+ *
+ * Copyright (c) 2013 Romuald Quantin
+ * Licensed under the MIT license.
+ *
+ * Fork from:
+ *
  * grunt-html2js
  * https://github.com/karlgoldstein/grunt-html2js
  *
@@ -14,24 +22,24 @@ module.exports = function(grunt) {
   grunt.initConfig({
     jshint: {
       options: {
-        jshintrc: '.jshintrc',
+        jshintrc: '.jshintrc'
       },
       all: [
         'Gruntfile.js',
         'tasks/*.js',
-        '<%= nodeunit.tests %>',
+        '<%= nodeunit.tests %>'
       ]
     },
 
     // Before generating any new files, remove any previously-created files.
     clean: {
-      tests: ['tmp'],
+      tests: ['tmp']
     },
 
     // Configuration to be run (and then tested).
     // See https://github.com/gruntjs/grunt/wiki/Configuring-tasks
     // for configuration options that need to be tested
-    html2js: {
+    htmlConvert: {
 
       regex_in_template: {
         src: ['test/fixtures/pattern.tpl.html'],
@@ -144,6 +152,16 @@ module.exports = function(grunt) {
         dest: 'tmp/file_header.js'
       },
 
+      prefix_suffix: {
+        options: {
+	        fileHeaderString: '/* global angular: false */\n',
+	        prefix: '(function(){\n\n',
+	        suffix: '\n})();\n'
+        },
+        src: ['test/fixtures/three.tpl.html'],
+        dest: 'tmp/prefix_suffix.js'
+      },
+
       rename: {
         options: {
           rename: function(moduleName) {
@@ -165,7 +183,7 @@ module.exports = function(grunt) {
 
     // Unit tests.
     nodeunit: {
-      tests: ['test/*_test.js'],
+      tests: ['test/*_test.js']
     }
   });
 
@@ -179,7 +197,7 @@ module.exports = function(grunt) {
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'html2js', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'htmlConvert', 'nodeunit']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);

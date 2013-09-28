@@ -1,4 +1,12 @@
 /*
+ * grunt-html-convert
+ * https://github.com/soundstep/grunt-html-convert
+ *
+ * Copyright (c) 2013 Romuald Quantin
+ * Licensed under the MIT license.
+ *
+ * Fork from:
+ *
  * grunt-html2js
  * https://github.com/karlgoldstein/grunt-html2js
  *
@@ -38,42 +46,51 @@ module.exports = function(grunt) {
     }
   };
 
+var camelCased = function(str) {
+	return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() });
+}
+
   // compile a template to an angular module
-  var compileTemplate = function(moduleName, filepath, quoteChar, indentString) {
+  var compileTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString) {
 
     var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString);
     var doubleIndent = indentString + indentString;
 
-    var module = 'angular.module(' + quoteChar + moduleName +
-      quoteChar + ', []).run([' + quoteChar + '$templateCache' + quoteChar + ', function($templateCache) ' +
-      '{\n' + indentString + '$templateCache.put(' + quoteChar + moduleName + quoteChar + ',\n' + doubleIndent  + quoteChar +  content +
-       quoteChar + ');\n}]);\n';
+    var module = camelCased(targetModule) + '[' + quoteChar + moduleName +
+      quoteChar + '] = ' + quoteChar +  content +
+       quoteChar + ';\n';
 
+//    var module = 'angular.module(' + quoteChar + moduleName +
+//      quoteChar + ', []).run([' + quoteChar + '$templateCache' + quoteChar + ', function($templateCache) ' +
+//      '{\n' + indentString + '$templateCache.put(' + quoteChar + moduleName + quoteChar + ',\n' + doubleIndent  + quoteChar +  content +
+//       quoteChar + ');\n}]);\n';
+//
     return module;
   };
 
   // compile a template to an angular module
-  var compileCoffeeTemplate = function(moduleName, filepath, quoteChar, indentString) {
+  var compileCoffeeTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString) {
     var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString);
     var doubleIndent = indentString + indentString;
 
-    var module = 'angular.module(' + quoteChar + moduleName +
-      quoteChar + ', []).run([' + quoteChar + '$templateCache' + quoteChar + ', ($templateCache) ->\n' +
-      indentString + '$templateCache.put(' + quoteChar + moduleName + quoteChar + ',\n' + doubleIndent  + quoteChar +  content +
-      quoteChar + ')\n])\n';
+    var module = camelCased(targetModule) + '[' + quoteChar + moduleName +
+      quoteChar + '] = ' + quoteChar + content +
+      quoteChar + '\n';
 
     return module;
   };
 
-  grunt.registerMultiTask('html2js', 'Compiles Angular-JS templates to JavaScript.', function() {
+  grunt.registerMultiTask('htmlConvert', 'Compiles html to JavaScript.', function() {
 
     var options = this.options({
       base: 'src',
-      module: 'templates-' + this.target,
+      module: this.target,
       quoteChar: '"',
       fileHeaderString: '',
       indentString: '  ',
-      target: 'js'
+      target: 'js',
+	  prefix: '',
+	  suffix: ''
     });
 
     // generate a separate module
@@ -81,6 +98,7 @@ module.exports = function(grunt) {
 
       // f.dest must be a string or write will fail
 
+      var targetModule = f.module || options.module;
       var moduleNames = [];
 
       var modules = f.src.filter(existsFilter).map(function(filepath) {
@@ -91,28 +109,33 @@ module.exports = function(grunt) {
         }
         moduleNames.push("'" + moduleName + "'");
         if (options.target === 'js') {
-          return compileTemplate(moduleName, filepath, options.quoteChar, options.indentString);
+          return compileTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString);
         } else if (options.target === 'coffee') {
-          return compileCoffeeTemplate(moduleName, filepath, options.quoteChar, options.indentString);
+          return compileCoffeeTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString);
         } else {
           grunt.fail.fatal('Unknow target "' + options.target + '" specified');
         }
 
       }).join(grunt.util.normalizelf('\n'));
 
+	  var bundle = "";
       var fileHeader = options.fileHeaderString !== '' ? options.fileHeaderString + '\n' : '';
-      var bundle = "";
-      var targetModule = f.module || options.module;
       //Allow a 'no targetModule if module is null' option
       if (targetModule) {
-        bundle = "angular.module('" + targetModule + "', [" + moduleNames.join(', ') + "])";
+	      if (options.target === 'js') {
+		      bundle += 'var ';
+	      }
+        bundle += camelCased(targetModule) + " = {}";
         if (options.target === 'js') {
           bundle += ';';
         }
 
         bundle += "\n\n";
       }
-      grunt.file.write(f.dest, fileHeader + bundle + modules);
+	    var prefix = options.prefix || '';
+	    var suffix = options.suffix || '';
+
+      grunt.file.write(f.dest, fileHeader + prefix + bundle + modules + suffix);
     });
     //Just have one output, so if we making thirty files it only does one line
     grunt.log.writeln("Successfully converted "+(""+this.files.length).green +

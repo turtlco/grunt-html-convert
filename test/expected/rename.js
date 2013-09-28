@@ -1,11 +1,5 @@
-angular.module('templates-rename', ['../test/fixtures/one.tpl', '../test/fixtures/two.tpl']);
+var rename = {};
 
-angular.module("../test/fixtures/one.tpl", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("../test/fixtures/one.tpl",
-    "1 2 3");
-}]);
+rename["../test/fixtures/one.tpl"] = "1 2 3";
 
-angular.module("../test/fixtures/two.tpl", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("../test/fixtures/two.tpl",
-    "Testing");
-}]);
+rename["../test/fixtures/two.tpl"] = "Testing";

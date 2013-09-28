@@ -1,6 +1,3 @@
-angular.module('my-custom-templates', ['fixtures/one.tpl.html']);
+var myCustomTemplates = {};
 
-angular.module("fixtures/one.tpl.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("fixtures/one.tpl.html",
-    "1 2 3");
-}]);
+myCustomTemplates["fixtures/one.tpl.html"] = "1 2 3";

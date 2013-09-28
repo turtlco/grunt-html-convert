@@ -172,16 +172,26 @@ exports.html2js = {
 
     test.done();
   },
-  file_header: function(test) {
+	file_header: function(test) {
 
-    test.expect(1);
+		test.expect(1);
 
-    assertFileContentsEqual(test, 'tmp/file_header.js',
-        'test/expected/file_header.js',
-        'expected compiled template module');
+		assertFileContentsEqual(test, 'tmp/file_header.js',
+			'test/expected/file_header.js',
+			'expected compiled template module');
 
-    test.done();
-  },
+		test.done();
+	},
+	prefix_suffix: function(test) {
+
+		test.expect(1);
+
+		assertFileContentsEqual(test, 'tmp/prefix_suffix.js',
+			'test/expected/prefix_suffix.js',
+			'expected compiled template module');
+
+		test.done();
+	},
   rename: function(test) {
 
     test.expect(1);

@@ -1,8 +1,5 @@
-angular.module('templates-single_quotes', ['../test/fixtures/four.tpl.html']);
+var single_quotes = {};
 
-angular.module('../test/fixtures/four.tpl.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('../test/fixtures/four.tpl.html',
-    'This data is "in quotes"\n' +
+single_quotes['../test/fixtures/four.tpl.html'] = 'This data is "in quotes"\n' +
     'And this data is \'in single quotes\'\n' +
-    '');
-}]);
+    '';
