@@ -162,6 +162,18 @@ module.exports = function(grunt) {
         dest: 'tmp/prefix_suffix.js'
       },
 
+      indent_global: {
+        options: {
+	        fileHeaderString: '/* global angular: false */\n',
+	        prefix: '(function(){\n\n',
+	        suffix: '\n})();\n',
+	        indentString: '----',
+	        indentGlobal: '++++'
+        },
+        src: ['test/fixtures/three.tpl.html'],
+        dest: 'tmp/indent_global.js'
+      },
+
       rename: {
         options: {
           rename: function(moduleName) {

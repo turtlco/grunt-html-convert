@@ -192,6 +192,16 @@ exports.html2js = {
 
 		test.done();
 	},
+	indent_global: function(test) {
+
+		test.expect(1);
+
+		assertFileContentsEqual(test, 'tmp/indent_global.js',
+			'test/expected/indent_global.js',
+			'expected compiled template module');
+
+		test.done();
+	},
   rename: function(test) {
 
     test.expect(1);

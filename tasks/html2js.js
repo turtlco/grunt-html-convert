@@ -20,10 +20,10 @@ module.exports = function(grunt) {
 
   var path = require('path');
 
-  var escapeContent = function(content, quoteChar, indentString) {
+  var escapeContent = function(content, quoteChar, indentString, indentGlobal) {
     var bsRegexp = new RegExp('\\\\', 'g');
     var quoteRegexp = new RegExp('\\' + quoteChar, 'g');
-    var nlReplace = '\\n' + quoteChar + ' +\n' + indentString + indentString + quoteChar;
+    var nlReplace = '\\n' + quoteChar + ' +\n' + indentGlobal + indentString + quoteChar;
     return content.replace(bsRegexp, '\\\\').replace(quoteRegexp, '\\' + quoteChar).replace(/\r?\n/g, nlReplace);
   };
 
@@ -51,12 +51,11 @@ var camelCased = function(str) {
 }
 
   // compile a template to an angular module
-  var compileTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString) {
+  var compileTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString, indentGlobal) {
 
-    var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString);
-    var doubleIndent = indentString + indentString;
+    var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString, indentGlobal);
 
-    var module = camelCased(targetModule) + '[' + quoteChar + moduleName +
+    var module = indentGlobal + camelCased(targetModule) + '[' + quoteChar + moduleName +
       quoteChar + '] = ' + quoteChar +  content +
        quoteChar + ';\n';
 
@@ -69,11 +68,11 @@ var camelCased = function(str) {
   };
 
   // compile a template to an angular module
-  var compileCoffeeTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString) {
+  var compileCoffeeTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString, indentGlobal) {
     var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString);
     var doubleIndent = indentString + indentString;
 
-    var module = camelCased(targetModule) + '[' + quoteChar + moduleName +
+    var module = indentGlobal + camelCased(targetModule) + '[' + quoteChar + moduleName +
       quoteChar + '] = ' + quoteChar + content +
       quoteChar + '\n';
 
@@ -87,7 +86,8 @@ var camelCased = function(str) {
       module: this.target,
       quoteChar: '"',
       fileHeaderString: '',
-      indentString: '  ',
+      indentString: '   ',
+      indentGlobal: '',
       target: 'js',
 	  prefix: '',
 	  suffix: ''
@@ -109,9 +109,9 @@ var camelCased = function(str) {
         }
         moduleNames.push("'" + moduleName + "'");
         if (options.target === 'js') {
-          return compileTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString);
+          return compileTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal);
         } else if (options.target === 'coffee') {
-          return compileCoffeeTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString);
+          return compileCoffeeTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal);
         } else {
           grunt.fail.fatal('Unknow target "' + options.target + '" specified');
         }
@@ -122,6 +122,7 @@ var camelCased = function(str) {
       var fileHeader = options.fileHeaderString !== '' ? options.fileHeaderString + '\n' : '';
       //Allow a 'no targetModule if module is null' option
       if (targetModule) {
+	      bundle += options.indentGlobal;
 	      if (options.target === 'js') {
 		      bundle += 'var ';
 	      }
