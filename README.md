@@ -134,6 +134,16 @@ If specified, this string  will get written at the top of the output
 Template.js file. As an example, jshint directives such as
 /* global soma: false */ can be put at the head of the file.
 
+#### ignore
+Type: `RegExp`
+Default value: ``
+
+If specified, the regular expression match will not be escaped.
+Also note the regular expression requires the global match flag to be set:
+```
+options: { ignore: //g } 
+```
+
 ### Usage Examples
 
 See the `Gruntfile.js` in the project source code for various configuration examples.

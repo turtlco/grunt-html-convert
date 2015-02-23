@@ -19,12 +19,47 @@
 module.exports = function(grunt) {
 
   var path = require('path');
-
-  var escapeContent = function(content, quoteChar, indentString, indentGlobal) {
+  
+  var _isIgnoreDefined = function ( ignore ) {
+    if( ignore instanceof RegExp ) {
+      if( !ignore.global ) {
+        throw new Error( "Error: ignore needs to be a global match." );
+      }
+      return true;
+    }
+    return false;
+  };
+  
+  var _ignore = function ( content, ignore, replace  ) {
+	var a, 
+	i = 0,
+	str = '',
+	s_str;
+	while ((a = ignore.exec( content )) !== null)
+	{
+		s_str = content.substring( i, a.index );
+		if( s_str.length > 1 ) {
+			str += replace( s_str );
+		}
+		str += content.substring( a.index, ignore.lastIndex );
+		i = ignore.lastIndex;
+	}
+	str += replace( content.substr( i ) );
+	return str;
+  };
+  
+  var escapeContent = function(content, quoteChar, indentString, indentGlobal, ignore) {
     var bsRegexp = new RegExp('\\\\', 'g');
     var quoteRegexp = new RegExp('\\' + quoteChar, 'g');
     var nlReplace = '\\n' + quoteChar + ' +\n' + indentGlobal + indentString + quoteChar;
-    return content.replace(bsRegexp, '\\\\').replace(quoteRegexp, '\\' + quoteChar).replace(/\r?\n/g, nlReplace);
+    var replace = function ( content ) {
+        return content.replace(bsRegexp, '\\\\').replace(quoteRegexp, '\\' + quoteChar).replace(/\r?\n/g, nlReplace);
+    };
+    if( _isIgnoreDefined( ignore ) ) {
+        return _ignore( content, ignore, replace );
+    }else {
+        return replace( content );
+    }
   };
 
   // convert Windows file separator URL path separator
@@ -47,13 +82,13 @@ module.exports = function(grunt) {
   };
 
 var camelCased = function(str) {
-	return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() });
-}
+	return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+};
 
   // compile a template to an angular module
-  var compileTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString, indentGlobal) {
+  var compileTemplate = function(targetModule, moduleName, filepath, quoteChar, indentString, indentGlobal, ignore) {
 
-    var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString, indentGlobal);
+    var content = escapeContent(grunt.file.read(filepath), quoteChar, indentString, indentGlobal, ignore);
 
     var module = indentGlobal + camelCased(targetModule) + '[' + quoteChar + moduleName +
       quoteChar + '] = ' + quoteChar +  content +
@@ -89,8 +124,9 @@ var camelCased = function(str) {
       indentString: '   ',
       indentGlobal: '',
       target: 'js',
-	  prefix: '',
-	  suffix: ''
+      prefix: '',
+      suffix: '',
+      ignore: ''
     });
 
     // generate a separate module
@@ -109,23 +145,23 @@ var camelCased = function(str) {
         }
         moduleNames.push("'" + moduleName + "'");
         if (options.target === 'js') {
-          return compileTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal);
+          return compileTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal, options.ignore);
         } else if (options.target === 'coffee') {
-          return compileCoffeeTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal);
+          return compileCoffeeTemplate(targetModule, moduleName, filepath, options.quoteChar, options.indentString, options.indentGlobal, options.ignore);
         } else {
           grunt.fail.fatal('Unknow target "' + options.target + '" specified');
         }
 
       }).join(grunt.util.normalizelf('\n'));
 
-	  var bundle = "";
+      var bundle = "";
       var fileHeader = options.fileHeaderString !== '' ? options.fileHeaderString + '\n' : '';
       //Allow a 'no targetModule if module is null' option
       if (targetModule) {
-	      bundle += options.indentGlobal;
-	      if (options.target === 'js') {
-		      bundle += 'var ';
-	      }
+          bundle += options.indentGlobal;
+          if (options.target === 'js') {
+              bundle += 'var ';
+          }
         bundle += camelCased(targetModule) + " = {}";
         if (options.target === 'js') {
           bundle += ';';
@@ -133,8 +169,8 @@ var camelCased = function(str) {
 
         bundle += "\n\n";
       }
-	    var prefix = options.prefix || '';
-	    var suffix = options.suffix || '';
+        var prefix = options.prefix || '';
+        var suffix = options.suffix || '';
 
       grunt.file.write(f.dest, fileHeader + prefix + bundle + modules + suffix);
     });

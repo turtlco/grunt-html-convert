@@ -221,5 +221,15 @@ exports.html2js = {
           'expected compiled template module');
 
     test.done();
+  },
+  ignore: function (test) {
+	test.expect(1);
+
+	assertFileContentsEqual( test, 
+                            'tmp/ignore.js',
+                            'test/expected/ignore.js',
+                            'expected compiled template module');
+
+	test.done();
   }
 };
